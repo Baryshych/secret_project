@@ -37,5 +37,22 @@ class BananaFetcher
       @cache[:query] = query
     end
     @cache[:data]
+    end
+  
+  def fetch_with_lookback_cache(page_offset = 0,
+                       per_page = 10,
+                       filter = {})
+    @cache ||= [{
+        query: [],
+        data: []
+    }]
+    query = { page_offset: page_offset, per_page: per_page, filter: filter }
+    cached = @cache.find{|cached| cached[:query] == query}
+    unless cached
+      p 'Loading...'
+      cached = { data: fetch(page_offset, per_page, filter), query: query}
+      @cache << cached
+    end
+    cached
   end
 end
